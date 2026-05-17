@@ -95,7 +95,7 @@ async def on_message(message):
 
   await asyncio.to_thread(sendtoai1)
 
-  def sendtoai2():
+  def aiproccess1():
     global intent
     global client
     
@@ -119,7 +119,7 @@ async def on_message(message):
   else:
     userinfo["points"] -= 1
 
-  def sendtoai3():
+  def aiproccess2():
     global client
     
     userinfo["description"] = response[2].message.content
