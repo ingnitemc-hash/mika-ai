@@ -173,3 +173,10 @@ async def startbot():
   await bot.start(os.getenv("YOUR_DISCORD_TOKEN")
 
 asyncio.run(startbot())
+
+#for some purpose my collegue told me to add it because provider might see its inactive and shut it down
+
+import requests
+
+async def ping():
+    response = requests.get("8.8.8.8")
