@@ -40,7 +40,8 @@ cache = {}
 
 words = ["a", "afterwards", "again", "all", "almost", "alone", "already", "also", "although", "always", "am", "amount", "an", "and", "another", "any", "anyhow", "anyone", "anything", "anyway", "anywhere", "are", "as", "back", "be", "became", "because", "become", "becomes", "becoming", "been", "beforehand", "being", "both", "bottom", "but", "call", "can", "cannot", "could", "did", "do", "does", "doing", "done", "due", "each", "either", "else", "elsewhere", "enough", "etc", "even", "ever", "every", "everyone", "everything", "everywhere", "except", "few", "first", "former", "formerly", "further", "get", "gets", "getting", "give", "go", "goes", "going", "gone", "got", "had", "has", "have", "having", "he", "hence", "her", "here", "hereafter", "hereby", "herein", "hereupon", "hers", "him", "his", "however", "i", "if", "indeed", "is", "it", "its", "just", "keep", "last", "later", "latter", "latterly", "least", "less", "made", "make", "many", "may", "me", "meanwhile", "might", "mine", "more", "moreover", "most", "mostly", "move", "much", "must", "my", "name", "namely", "neither", "never", "nevertheless", "next", "no", "nobody", "none", "noone", "nor", "not", "nothing", "now", "nowhere", "often", "once", "one", "only", "or", "other", "others", "otherwise", "our", "ours", "own", "part", "perhaps", "please", "put", "quite", "rather", "re", "really", "same", "see", "seem", "seemed", "seeming", "seems", "several", "she", "should", "show", "side", "since", "so", "some", "somehow", "someone", "something", "sometime", "sometimes", "somewhere", "still", "such", "take", "than", "that", "the", "their", "them", "then", "thence", "there", "thereafter", "thereby", "therefore", "therein", "thereupon", "these", "they", "this", "those", "though", "thru", "thus", "together", "too", "us", "very", "via", "was", "we", "well", "were", "will", "would"]
 
-source = tempfile.NamedTemporaryFile(dir=".", delete=False)
+dir = tempfile.TemporaryDirectory()
+source = tempfile.NamedTemporaryFile(dir=dir.name, delete=True).name
 
 @bot.event
 async def on_member_join(member):
@@ -91,7 +92,7 @@ async def on_message(message):
     global client
     client = OpenAI(api_key=token, base_url="https://api.groq.com/openai/v1")
     response = (client.chat.completions.create(model="llama-3.1-8b-instant", messages=[{"role": "user", "content": "{treat commas as different request/message and also seperate all the responses with two * symbol exactly and do not mark it as number one, number two so on keep it as different requests}"+ " {" + f"the user currently talking to you is {message.author.name}" + "} " + prompt + cachereading + bestusrinfo + message.content.lower() + ", " + prompt + "{is this statement positive or negative, answer using positive or negative}" + cachereading + bestusrinfo + message.content.lower() + ", " + prompt + "{according to the topics this user is interested in and current message, tell a description of this user only description no prefixes}" + cachereading + bestusrinfo + message.content.lower()}]).choices[0].message.content).split("**")  
-    print(response)
+    print("got ai response")
 
   await asyncio.to_thread(sendtoai1)
 
@@ -102,7 +103,7 @@ async def on_message(message):
     response = client.audio.speech.create(model="llama-3.1-8b-instant", voice="Mika", text=response[0], response_format="wav")
     response.write_to_file(source)
     audio = discord.FFmpegPCMAudio(source)
-    await voice_client.play(audio, after = lambda: print("finished playing sound"))
+    voice_client.play(audio, after = lambda: print("finished playing sound"))
   print("sent ai response")
 
   def sendtoai2():
