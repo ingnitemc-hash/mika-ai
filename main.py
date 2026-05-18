@@ -11,7 +11,7 @@ db = MongoClient("mongodb://127.0.0.1:27017")
 data = db["Mikadb"]
 userdata = data["userdata"]
 
-handler = logging.FileHandler("./discordbot/discord.log", "w", "utf-8")
+handler = logging.FileHandler("./discord.log", "w", "utf-8")
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 handler.setFormatter(formatter)
@@ -40,7 +40,7 @@ cache = {}
 
 words = ["a", "afterwards", "again", "all", "almost", "alone", "already", "also", "although", "always", "am", "amount", "an", "and", "another", "any", "anyhow", "anyone", "anything", "anyway", "anywhere", "are", "as", "back", "be", "became", "because", "become", "becomes", "becoming", "been", "beforehand", "being", "both", "bottom", "but", "call", "can", "cannot", "could", "did", "do", "does", "doing", "done", "due", "each", "either", "else", "elsewhere", "enough", "etc", "even", "ever", "every", "everyone", "everything", "everywhere", "except", "few", "first", "former", "formerly", "further", "get", "gets", "getting", "give", "go", "goes", "going", "gone", "got", "had", "has", "have", "having", "he", "hence", "her", "here", "hereafter", "hereby", "herein", "hereupon", "hers", "him", "his", "however", "i", "if", "indeed", "is", "it", "its", "just", "keep", "last", "later", "latter", "latterly", "least", "less", "made", "make", "many", "may", "me", "meanwhile", "might", "mine", "more", "moreover", "most", "mostly", "move", "much", "must", "my", "name", "namely", "neither", "never", "nevertheless", "next", "no", "nobody", "none", "noone", "nor", "not", "nothing", "now", "nowhere", "often", "once", "one", "only", "or", "other", "others", "otherwise", "our", "ours", "own", "part", "perhaps", "please", "put", "quite", "rather", "re", "really", "same", "see", "seem", "seemed", "seeming", "seems", "several", "she", "should", "show", "side", "since", "so", "some", "somehow", "someone", "something", "sometime", "sometimes", "somewhere", "still", "such", "take", "than", "that", "the", "their", "them", "then", "thence", "there", "thereafter", "thereby", "therefore", "therein", "thereupon", "these", "they", "this", "those", "though", "thru", "thus", "together", "too", "us", "very", "via", "was", "we", "well", "were", "will", "would"]
 
-source = tempfile.NamedTemporaryFile(dir="./ai-audios", delete=False)
+source = tempfile.NamedTemporaryFile(dir=".", delete=False)
 
 @bot.event
 async def on_member_join(member):
