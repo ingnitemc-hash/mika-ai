@@ -462,7 +462,6 @@ async def showsyntax(ctx, command: str):
   else:
     await ctx.channel.send("invalid command")
 
-
 async def startbot():
   print("started running")
   await bot.start(os.getenv("DISCORD_TOKEN"))
