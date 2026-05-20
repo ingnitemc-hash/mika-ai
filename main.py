@@ -356,13 +356,90 @@ async def link(ctx, server: str = commands.parameter(description="the server you
   linked[ctx.guild.id] = "yes"
   linked[int(server)] = "yes" 
   
+@bot.command(name = "setupvc" , help = "set up vc for a server")
+async def setupvc(ctx):
+  global vc
+  global voice_client
+  global vcguilds
+  voice_client[ctx.guild.id] = ctx.guild.voice_client
+  await ctx.channel.send("vc set up for this server")
+  vcguilds.append(ctx.guild.id)
+
+@bot.command(name = "linkvc", help = "link vc of one server to the next")
+async def linkvc(ctx, server: str = commands.parameter(description="the server you want to link to")):
+  global voice_client
+  global connected
+  global concserver
+  fvcguilds = [serverid for serverid in vcguilds if serverid != ctx.guild.id]
+  if server == "(help)":
+    embed = discord.Embed(title="🔗 Link VC Command Server List", description="Here are available servers:", color=0x00ff00)
+    embed.add_field(name="servers", value=f'{fvcguilds} vc servers', inline=False)
+    await ctx.channel.send(embed=embed)
+    return
+  elif server == "(suprise me)":
+    target = random.choice(fvcguilds)
+    concserver.append({"server1": int(server), "server2": ctx.guild.id})
+    connected[ctx.guild.id] = True
+    connected[int(server)] = True
+    await ctx.channel.send(f"linked vc to {bot.get_guild(target)}")
+    call(ctx, target)
+  if server == "(disconnect)":
+    for i in range(len(concserver)):
+      if ctx.guild.id == list(concserver[i].values()):
+        pos = i
+        break
+      else:
+        return
+    if not pos:
+      await ctx.channel.send("no linked server found")
+      return
+    concserver[pos].clear()
+    connected[ctx.guild.id].clear()
+    connected[int(server)].clear()
+    return
+  if not server.isdigit():
+    await ctx.channel.send("invalid server id")
+    return
+  if vc.get(ctx.guild.id) and vc.get(int(server)):
+    concserver.append({"server1": int(server), "server2": ctx.guild.id})
+    connected[ctx.guild.id] = True
+    connected[int(server)] = True
+    await ctx.channel.send(f"linked vc to {bot.get_guild(int(server))}")
+    call(ctx, int(server))
+  else:
+    await ctx.channel.send("both servers need to have the vc linked and the command needs to be used in a channel named 'call'")
+
+def call(ctx, target):
+  while connected.get(ctx.guild.id) == True and connected.get(target) == True:
+    threading.Thread(target=record, args=(ctx, ctx.guild.id)).start()
+    threading.Thread(target=record, args=(ctx, target)).start()
+
+def record(ctx, server):
+  global voice_client
+  if vc.get(server):
+    voice_client[server].start_recording(WaveSink(), finished_callback, ctx, server)
+    time.sleep(5)
+    voice_client[server].stop_recording()
+    return
+  else:
+    return "vc not set up for this server"
+
+async def finished_callback(sink, ctx, target):
+    for user_id, audio in sink.audio_data.items():
+        filename = tempfile.NamedTemporaryFile(dir=dir,prefix=user_id, suffix=".wav", delete=True)
+        filename.close()
+
+        with open(filename, "wb") as f:
+            f.write(audio.file.read())
+    target.play(discord.FFmpegPCMAudio(filename.name), after=lambda e: print("finished playing sound"))
+
 @bot.command(name = "make a distrack", help = "make miku make a diss track about someone")
 async def distrack(ctx, user: str = commands.parameter(description="the user you want to diss (tell username)")):
   if not user:
     await ctx.channel.send("diss who tho 👀")
     return
   client = OpenAI(api_key=token, base_url="https://api.groq.com/openai/v1")
-  response = client.chat.completions.create(model="llama-3.1-8b-instant", messages=[{"role": "user", "content": f"make a diss track about {user} in the style of eminem and it should rhyme"}]).choices[0].message.content
+  response = client.chat.completions.create(model="llama-3.1-8b-instant", messages=[{"role": "user", "content": f"make a diss track about {user} in the style of kendrick lamar and it should rhyme"}]).choices[0].message.content
   await ctx.channel.send(f"yo @{user}, {response}")
   return
 
@@ -380,7 +457,9 @@ async def helpme(ctx):
   embed.add_field(name="!(moannnn)", value="Make Miku moan seductively (only works if Miku is in a voice channel)", inline=False)
   embed.add_field(name="!link [server]", value="Link the current server to another server for cross-server chatting (use !link (help) for more info)", inline=False)
   embed.add_field(name="!sleep", value="Make the bot sleep for 30 seconds (admin only)", inline=False)
-  embed.add_field(name="!advise", value="Get relationship advice from Miku", inline=False)
+  embed.add_field(name="!setupvc", value="Set up voice channel for the server", inline=False)
+  embed.add_field(name="!linkvc [server]", value="Link the voice channel of the current server to another server (use !linkvc (help) for more info)", inline=False)
+  embed.add_field(name="!distrack [user]", value="Make Miku create a diss track about a specific user", inline=False)
   await ctx.channel.send(embed=embed)
 
 @bot.command(name = "show syntax", help = "show syntax of a command")
@@ -409,6 +488,12 @@ async def showsyntax(ctx, command: str = commands.parameter(description="the com
     await ctx.channel.send("Miku, nyah nyah")
   elif command == "sleep":  
     await ctx.channel.send("!sleep")
+  elif command == "setupvc":
+    await ctx.channel.send("!setupvc")
+  elif command == "linkvc":
+    await ctx.channel.send("!linkvc [server (easter eggs: (help), (disconnect), (suprise me))]")
+  elif command == "distrack":
+    await ctx.channel.send("!distrack [user]")
   else:
     await ctx.channel.send("invalid command")
 
