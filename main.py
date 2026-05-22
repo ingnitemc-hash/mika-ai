@@ -465,6 +465,16 @@ async def distrack(ctx, user: str):
   response = client.chat.completions.create(model="llama-3.1-8b-instant", messages=[{"role": "user", "content": f"make a diss track about {user} in the style of kendrick lamar and it should rhyme"}]).choices[0].message.content
   await ctx.channel.send(f"yo @{user}, {response}")
   return
+    
+@bot.command(name = "waifu", help = "smash or pass waifu")
+async def waifu(ctx):
+  embed = discord.Embed(title="Smash or Pass?", 
+    description=f"*prompt:* anime waifu", 
+    color=0xffb6c1
+    )
+  embed.set_image(url=pollinations_img(prompt))
+  await ctx.channel.send(embed=embed)
+  return
 
 @bot.command(name = "helpme", help = "get help about the bot's commands")
 async def helpme(ctx):
@@ -483,6 +493,7 @@ async def helpme(ctx):
   embed.add_field(name="!setupvc", value="Set up voice channel for the server", inline=False)
   embed.add_field(name="!linkvc [server]", value="Link the voice channel of the current server to another server (use !linkvc (help) for more info)", inline=False)
   embed.add_field(name="!distrack [user]", value="Make Miku create a diss track about a specific user", inline=False)
+  embed.add_field(name="!waifu", value="Make Miku create a anime waifu", inline=False)
   await ctx.channel.send(embed=embed)
 
 @bot.command(name = "show syntax", help = "show syntax of a command")
@@ -517,6 +528,8 @@ async def showsyntax(ctx, command: str):
     await ctx.channel.send("!linkvc [server (easter eggs: (help), (disconnect), (suprise me))]")
   elif command == "distrack":
     await ctx.channel.send("!distrack [user]")
+  elif command == "waifu":
+    await ctx.channel.send("!waifu")
   else:
     await ctx.channel.send("invalid command")
 
