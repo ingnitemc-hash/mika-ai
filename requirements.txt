@@ -3,3 +3,5 @@ logging
 openai
 pymongo
 groq
+py-cord
+requests
